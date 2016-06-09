@@ -1,0 +1,12 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+    <div class="chuck-style"></div>
+    <style>
+        .chuck-style {
+          background-image: url("http://imgs.xkcd.com/comics/time_tracking_software.png");
+          background-repeat: no-repeat;
+          background-position: bottom left;
+          padding-bottom: 270px !important;
+        }
+    </style>
+</j:jelly>
