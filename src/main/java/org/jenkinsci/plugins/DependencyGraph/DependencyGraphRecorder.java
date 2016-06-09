@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
+import hudson.EnvVars;
 
 
 public class DependencyGraphRecorder extends Recorder {
@@ -39,9 +40,9 @@ public class DependencyGraphRecorder extends Recorder {
 	 */
 	@Override
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
-		Action action = null;
-		if (project.getLastBuild() != null) {
-			action = new DependencyGraphAction();
+		DependencyGraphAction action = null;
+		if ((action = project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class)) != null) {
+			action = new DependencyGraphAction(action.getSVG(), action.getJPG());
 		}
 		return action;
 	}
@@ -77,12 +78,22 @@ public class DependencyGraphRecorder extends Recorder {
 		}
 		String buildDir = IvyReportParser.getBuildDir(workspace + "/build.xml");
 		String path = workspace + "/" + buildDir + "/";
-		IvyReportParser.xmlToDot(path + "org.apache-hello-ivy-default.xml", 
-								path + "report.dot", 
+		String projectName = IvyReportParser.getProjectName(workspace + "/build.xml");
+		//String image = "report" + System.getProperty("jenkins.buildNumber");
+		
+		// Get environment variables in order to extract current build number
+		//EnvVars envVars = new EnvVars();
+		//envVars = build.getEnvironment(listener);
+		String image = "report_" + build.getEnvironment(listener).get("BUILD_NUMBER");
+		//String image = "report_blubb3";
+		
+		// Convert dependency information from report to image files (svg, jpg)
+		IvyReportParser.xmlToDot(path + "org.apache-" + projectName + "-default.xml", 
+								path + image + ".dot", 
 								showIndirect);
-		ShellExecutor.dotToImages(path, "report");
+		ShellExecutor.dotToImages(path, image);
 
-		build.getActions().add(new DependencyGraphAction());
+		build.getActions().add(new DependencyGraphAction(image + ".svg", image + ".jpg"));
 		return true;
 	}
 

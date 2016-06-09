@@ -10,13 +10,25 @@ import hudson.model.Action;
  * @author cliffano
  */
 public final class DependencyGraphAction implements Action {
+	private String svg;
+	private String jpg;
+	
 	/**
 	 * Constructs a RoundhouseAction with specified style and fact.
 	 */
-	public DependencyGraphAction() {
+	public DependencyGraphAction(String svg, String jpg) {
 		super();
+		this.svg = svg;
+		this.jpg = jpg;
 	}
 
+	public String getSVG() {
+		return svg;
+	}
+	
+	public String getJPG() {
+		return jpg;
+	}
 	/**
 	 * Gets the action display name.
 	 * return the display name

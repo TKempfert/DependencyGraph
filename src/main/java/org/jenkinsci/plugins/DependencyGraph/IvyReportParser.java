@@ -226,4 +226,31 @@ public class IvyReportParser {
 		}
 		return buildDir;
 	}
+	
+	public static String getProjectName(String buildXML) {
+		String pname = "";
+		
+		try {			
+			File inputFile = new File(buildXML);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(inputFile);
+			doc.getDocumentElement().normalize();
+
+			NodeList nList = doc.getElementsByTagName("project");
+			assert(nList.getLength() == 1);
+
+			Element project = (Element) nList.item(0);
+			pname = project.getAttribute("name");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException pce) {
+			pce.printStackTrace();
+		} catch (SAXException se) {
+			se.printStackTrace();
+		}
+		return pname;
+	}
+	
 }
