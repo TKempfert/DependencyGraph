@@ -20,7 +20,7 @@ public class IvyReportParser {
 	// String input: name/location of the input file (ivy report, xml)
 	// String output: name of the output file to be created (graphviz dot file)
 	// boolean indirect: false - show only direct dependencies, true - also show indirect dependencies
-	public static void xmlToDot(String input, String output, boolean indirect) {
+	public static int[] xmlToDot(String input, String output, boolean indirect) {
 		String org;
 		String name;
 		String rev;
@@ -35,6 +35,9 @@ public class IvyReportParser {
 		Shape compareShape = null;
 		boolean isDirect = true;
 		boolean containsDirect = false;
+		
+		int nIndirect = 0; // Overall number of dependencies (different revisions are counted separately)
+		int nDirect = 0; // Number of direct dependencies (different revisions are counted separately)
 
 		try {			
 			ArrayList<Shape> shapeL = new ArrayList<Shape>();
@@ -52,9 +55,8 @@ public class IvyReportParser {
 			Document doc = dBuilder.parse(inputFile);
 			doc.getDocumentElement().normalize();
 
-			// If only direct dependencies are to be displayed:
 			// Get info for root element to later test against
-			if (!indirect) {
+			// -> tell if dependency is direct or indirect
 				NodeList infoL = doc.getElementsByTagName("info");
 				if (infoL.getLength() > 0) {
 					Element info = (Element) infoL.item(0);
@@ -63,7 +65,6 @@ public class IvyReportParser {
 					rev = info.getAttribute("revision");
 					compareShape = new Shape("root", org, name, rev);
 				}
-			}
 
 			NodeList nList = doc.getElementsByTagName("dependencies");
 			assert(nList.getLength() == 1);
@@ -112,7 +113,9 @@ public class IvyReportParser {
 							break;
 						}	
 					}
-					if (!exists) {shapeL.add(tempShape);}
+					if (!exists) {
+						shapeL.add(tempShape);
+						nIndirect++;}
 					exists = false;
 
 					containsDirect = false;
@@ -126,15 +129,15 @@ public class IvyReportParser {
 						callerName = caller.getAttribute("name");
 						callerRev = caller.getAttribute("callerrev");
 
-						// If only direct dependencies are to be displayed:
 						// Test if it is a direct dependency
-						if (!indirect) {
 							if (compareShape.isEqual(new Shape("vgl",callerOrg,callerName,callerRev))) {
 								isDirect = true;
 								containsDirect = true;
+								nDirect++;
 							}
 							else isDirect = false;
-						}
+							
+						// Add new dependency if it is direct or if indirect dependencies should also be shown
 						if (indirect || isDirect) {
 							shapeName = "shape" + shapeL.size();
 							tempCaller = new Shape(shapeName, callerOrg, callerName, callerRev);
@@ -177,80 +180,8 @@ public class IvyReportParser {
 		} catch (SAXException se) {
 			se.printStackTrace();
 		}
-	}
-
-	// input: complete path including filename of build.xml
-	// output: name of the directory where the ivy report is placed
-	public static String getBuildDir(String buildXML) {
-		String buildDir = "build";
-		String name;
-
-		try {			
-			File inputFile = new File(buildXML);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(inputFile);
-			doc.getDocumentElement().normalize();
-
-			NodeList nList = doc.getElementsByTagName("project");
-			assert(nList.getLength() == 1);
-
-			Element project = (Element) nList.item(0);
-
-			// Traverse list of all targets to find report target
-			NodeList targets = project.getElementsByTagName("target");
-			for (int m = 0; m < targets.getLength(); m++) {
-
-				Element target = (Element) targets.item(m);
-				name = target.getAttribute("name");
-
-				// Check if it is the correct target with name="report" attribute
-				if (name.equals("report")) {
-					NodeList reports = target.getElementsByTagName("ivy:report");
-					assert(nList.getLength()==1);
-					Element report = (Element) reports.item(0);
-					buildDir = report.getAttribute("todir");
-
-					// buildDir can look like ${name.dir} or like name
-					// remove surrounding ${ .dir}
-					buildDir = buildDir.replace("${", "").replace(".dir}", "");
-				}
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException pce) {
-			pce.printStackTrace();
-		} catch (SAXException se) {
-			se.printStackTrace();
-		}
-		return buildDir;
-	}
-	
-	public static String getProjectName(String buildXML) {
-		String pname = "";
 		
-		try {			
-			File inputFile = new File(buildXML);
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(inputFile);
-			doc.getDocumentElement().normalize();
-
-			NodeList nList = doc.getElementsByTagName("project");
-			assert(nList.getLength() == 1);
-
-			Element project = (Element) nList.item(0);
-			pname = project.getAttribute("name");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException pce) {
-			pce.printStackTrace();
-		} catch (SAXException se) {
-			se.printStackTrace();
-		}
-		return pname;
+		return (new int[] {nIndirect, nDirect});
 	}
 	
 }

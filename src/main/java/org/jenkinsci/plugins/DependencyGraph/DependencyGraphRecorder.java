@@ -42,7 +42,7 @@ public class DependencyGraphRecorder extends Recorder {
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
 		DependencyGraphAction action = null;
 		if ((action = project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class)) != null) {
-			action = new DependencyGraphAction(action.getSVG(), action.getJPG());
+			action = new DependencyGraphAction(action.getSVG(), action.getJPG(), action.getN());
 		}
 		return action;
 	}
@@ -76,24 +76,25 @@ public class DependencyGraphRecorder extends Recorder {
 				showIndirect = desc.showIndirect();
 			}
 		}
-		String buildDir = IvyReportParser.getBuildDir(workspace + "/build.xml");
-		String path = workspace + "/" + buildDir + "/";
-		String projectName = IvyReportParser.getProjectName(workspace + "/build.xml");
-		//String image = "report" + System.getProperty("jenkins.buildNumber");
+		
+		ReportFinder finder = new ReportFinder(workspace);
+		
+		String path = workspace + "/" + finder.getBuildDir();
 		
 		// Get environment variables in order to extract current build number
-		//EnvVars envVars = new EnvVars();
-		//envVars = build.getEnvironment(listener);
 		String image = "report_" + build.getEnvironment(listener).get("BUILD_NUMBER");
-		//String image = "report_blubb3";
 		
 		// Convert dependency information from report to image files (svg, jpg)
-		IvyReportParser.xmlToDot(path + "org.apache-" + projectName + "-default.xml", 
-								path + image + ".dot", 
-								showIndirect);
-		ShellExecutor.dotToImages(path, image);
-
-		build.getActions().add(new DependencyGraphAction(image + ".svg", image + ".jpg"));
+		// and get number of direct/indirect dependencies
+		build.getActions().add(new DependencyGraphAction(
+				path + image + ".svg", 
+				path + image + ".jpg", 
+				IvyReportParser.xmlToDot(finder.getReportLocation(), 
+										path + "/" + image + ".dot", 
+										showIndirect)
+				)
+		);
+		ShellExecutor.dotToImages(path + "/", image);
 		return true;
 	}
 
