@@ -1,5 +1,9 @@
 package org.jenkinsci.plugins.DependencyGraph;
 
+/**
+ * Helper class for graphviz dot file generation that stores information
+ * about one module.
+ */
 public class Shape {
 	private String shapeName;
 	private String org;

@@ -17,33 +17,65 @@ import java.nio.charset.Charset;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import org.xml.sax.SAXException;
+import java.nio.charset.Charset;
 
+/**
+ * Finds the xml ivy report. Currently assumes that the name of the report file
+ * contains the project name and ends in .xml.
+ */
 public class ReportFinder {
 		private String reportLocation;
 		private String buildDir;
 		private String projectName;
+		private String workspace;
 		
+		/**
+		 * Constructs a ReportFinder.
+		 * @param workspace
+		 * 					directory where the build.xml is stored
+		 */
 		public ReportFinder(String workspace) {
+			reportLocation = null;
+			buildDir = null;
+			projectName = null;
+			this.workspace = workspace;
+		}
+		
+		public void find() {
+			try {
 			projectName = findProjectName(workspace + "/build.xml");
-			buildDir = findBuildDir(workspace +"/build.xml");
-			reportLocation = findReportLocation(workspace + "/" + buildDir, projectName);
+			buildDir = findBuildDir(workspace, "/build.xml");
+			reportLocation = findReportLocation(buildDir, projectName);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		public String getBuildDir() {
+			if (buildDir == null) find();
 			return buildDir;
 		}
 		
 		public String getReportLocation() {
+			if (reportLocation == null) find();
 			return reportLocation;
 		}
 		
 		public String getProjectName() {
+			if (projectName == null) find();
 			return projectName;
 		}
 	
+		/**
+		 * Finds the location of the xml ivy report. Assumes that the file name contains
+		 * the project name and ends in .xml. TODO figure out how to get the exact name
+		 * @param path
+		 * 				directory where the report can be found
+		 * @param projectName
+		 * 				the name of the project
+		 * @returns location of the report as a String
+		 */
 		private static String findReportLocation(String path, String projectName) {
-			//String projectName = getProjectName(workspace + "/build.xml");
-			//String path = workspace + "/" + getBuildDir(workspace + "/build.xml");
 			String file = "";
 			
 			File root = new File(path);
@@ -61,7 +93,7 @@ public class ReportFinder {
 			            return p.matcher(file.getName()).matches();
 			        }
 			    });
-			if (matching != null) {
+			if (matching != null && matching.length == 1) {
 				file = matching[0].toString();
 			}
 			return file;
@@ -69,12 +101,12 @@ public class ReportFinder {
 	
 		// input: complete path including filename of build.xml
 		// output: name of the directory where the ivy report is placed
-		private static String findBuildDir(String buildXML) {
-			String buildDir = "build";
+		private static String findBuildDir(String workspace, String buildXML) {
+			String buildDir = "";
 			String name;
 
 			try {			
-				File inputFile = new File(buildXML);
+				File inputFile = new File(workspace + "/" + buildXML);
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 				Document doc = dBuilder.parse(inputFile);
@@ -112,7 +144,7 @@ public class ReportFinder {
 			} catch (SAXException se) {
 				se.printStackTrace();
 			}
-			return buildDir;
+			return workspace + "/" + buildDir;
 		}
 	
 	// input: path + filename of build.xml

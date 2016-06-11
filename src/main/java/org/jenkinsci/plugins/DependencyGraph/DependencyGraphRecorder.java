@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.EnvVars;
+import hudson.model.Result;
 
 
 public class DependencyGraphRecorder extends Recorder {
@@ -24,7 +25,7 @@ public class DependencyGraphRecorder extends Recorder {
 			.getLogger(DependencyGraphRecorder.class.getName());
 
 	/**
-	 * Constructs a {link DependencyGraphRecorder}
+	 * Constructs a {@link DependencyGraphRecorder}
 	 */
 	@DataBoundConstructor
 	public DependencyGraphRecorder() {
@@ -32,76 +33,91 @@ public class DependencyGraphRecorder extends Recorder {
 	}
 
 	/**
-	 * Gets the RoundhouseAction as the project action. This is applicable for
-	 * each job and only when there's at least one build in the job.
-	 * param project
+	 * Gets the {@link DependencyGraphAction} as the project action. This is applicable for
+	 * each job and only when there is at least one successful build in the job.
+	 * @param project
 	 *            the project
-	 * return the project action
+	 * @return copied DependencyGraphAction of the last successful build
 	 */
 	@Override
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
 		DependencyGraphAction action = null;
 		if ((action = project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class)) != null) {
-			action = new DependencyGraphAction(action.getSVG(), action.getJPG(), action.getN());
+			action = new DependencyGraphAction(action);
 		}
 		return action;
 	}
 
 	/**
-	 * Adds RoundhouseAction to the build actions. This is applicable for each
-	 * build.
-	 * param build
+	 * Adds {@link DependencyGraphAction} to the build actions. This is applicable for each build.
+	 * @param build
 	 *            the build
-	 * param launcher
+	 * @param launcher
 	 *            the launcher
-	 * param listener
+	 * @param listener
 	 *            the listener
-	 * return true
-	 * throws InterruptedException
-	 *             when there's an interruption
-	 * throws IOException
-	 *             when there's an IO error
+	 * @return true
+	 * @throws InterruptedException
+	 * @throws IOException
 	 */
 	@Override
 	public final boolean perform(final AbstractBuild<?, ?> build,
 			final Launcher launcher, final BuildListener listener)
 					throws InterruptedException, IOException {
+		try {
+			// Test for build success: must be at least unstable (no fatal errors)
+			// guarantees that dependencies could be resolved correctly
+			Result res = build.getResult();
+			if (res != null && res.isBetterOrEqualTo(Result.UNSTABLE)) {
 
-		String workspace = pathToString(build.getProject().getWorkspace());
-		boolean showIndirect = true;
-		Jenkins j = Jenkins.getInstance();
-		if (j!=null) {
-			DependencyGraphDescriptor desc = j.getDescriptorByType(DependencyGraphDescriptor.class);
-			if (desc != null) {
-				showIndirect = desc.showIndirect();
+				String workspace = pathToString(build.getProject().getWorkspace());
+
+				// Get from configuration if indirect dependencies are to be displayed
+				boolean showIndirect = true;
+				Jenkins j = Jenkins.getInstance();
+				if (j!=null) {
+					DependencyGraphDescriptor desc = j.getDescriptorByType(DependencyGraphDescriptor.class);
+					if (desc != null) {
+						showIndirect = desc.showIndirect();
+					}
+				}
+
+				ReportFinder finder = new ReportFinder(workspace);
+				String path = finder.getBuildDir() + "/";
+
+				// Extract current build number from environment variable
+				String image = "report_" + build.getEnvironment(listener).get("BUILD_NUMBER");
+
+				// Convert dependency information from report to image files (svg, jpg)
+				// and get number of direct/indirect dependencies
+				build.getActions().add(new DependencyGraphAction(
+						path + image + ".svg", 
+						path + image + ".jpg", 
+						IvyReportParser.xmlToDot(finder.getReportLocation(), 
+								path + image + ".dot", 
+								showIndirect)
+						)
+						);
+				ShellExecutor.dotToImages(path, image);
 			}
+		} catch(Exception e) {
+			// Catch all exceptions in order to not distort the build result
+			e.printStackTrace();
 		}
 		
-		ReportFinder finder = new ReportFinder(workspace);
-		
-		String path = workspace + "/" + finder.getBuildDir();
-		
-		// Get environment variables in order to extract current build number
-		String image = "report_" + build.getEnvironment(listener).get("BUILD_NUMBER");
-		
-		// Convert dependency information from report to image files (svg, jpg)
-		// and get number of direct/indirect dependencies
-		build.getActions().add(new DependencyGraphAction(
-				path + image + ".svg", 
-				path + image + ".jpg", 
-				IvyReportParser.xmlToDot(finder.getReportLocation(), 
-										path + "/" + image + ".dot", 
-										showIndirect)
-				)
-		);
-		ShellExecutor.dotToImages(path + "/", image);
 		return true;
 	}
 
+	/*
+	 * Converts a FilePath to a String and cuts off the "file:" at the beginning.
+	 * @param workspace
+	 * 					the FilePath
+	 * @return String representation of the FilePath
+	 */
 	public static String pathToString(FilePath workspace){
 		String path = null;
 		try {
-			path = workspace.toURI().toString().substring(5);
+			path = workspace.toURI().toString().replace("file:", "");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -114,7 +130,7 @@ public class DependencyGraphRecorder extends Recorder {
 
 	/**
 	 * Gets the required monitor service.
-	 * return the BuildStepMonitor
+	 * @return the BuildStepMonitor
 	 */
 	public final BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;

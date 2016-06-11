@@ -19,11 +19,18 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import hudson.tasks.Shell;
 
-/*
- * This class executes shell scripts
+/**
+ * Helper class that executes the necessary shell scripts
  */
 public class ShellExecutor {
 
+	/**
+	 * Converts a .dot file to .svg and .jpg in the same directory.
+	 * @param path
+	 * 				path to the directory where the .dot file is stored
+	 * @param file
+	 * 				(input and output) file name without ending
+	 */
 	public static void dotToImages(String path, String file){
 		String svgScript = "dot -Tsvg " + path + file + ".dot -o " 
 				+ path + file + ".svg ";
