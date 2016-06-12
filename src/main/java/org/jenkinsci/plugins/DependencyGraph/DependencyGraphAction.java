@@ -3,7 +3,7 @@ package org.jenkinsci.plugins.DependencyGraph;
 import hudson.model.Action;
 
 /**
- * DependencyGraphAction keeps the dependency graphs associated with the action.
+ * Keeps the dependency graphs associated with the action.
  */
 public final class DependencyGraphAction implements Action {
 	private String svg;
@@ -11,13 +11,13 @@ public final class DependencyGraphAction implements Action {
 	private int[] number;
 	
 	/**
-	 * Constructs a DependencyGraphAction.
+	 * Constructs a {@link DependencyGraphAction}.
 	 * @param svg
 	 * 				location of the dependency graph image (.svg)
 	 * @param jpg
 	 * 				location of the dependency graph image (.jpg)
 	 * @param n
-	 * 				n[0]: overall number of dependencies
+	 * 				n[0]: overall number of dependencies,
 	 * 				n[1]: number of direct dependencies
 	 */
 	public DependencyGraphAction(String svg, String jpg, int[] n) {
@@ -29,7 +29,9 @@ public final class DependencyGraphAction implements Action {
 	}
 	
 	/**
-	 * Copy constructor for DependencyGraphAction.
+	 * Copy constructor for {@link DependencyGraphAction}.
+	 * @param a
+	 * 				an existing DependencyGraphAction
 	 */
 	public DependencyGraphAction(DependencyGraphAction a) {
 		this.svg = a.getSVG();
@@ -37,24 +39,39 @@ public final class DependencyGraphAction implements Action {
 		this.number = a.getN();
 	}
 
+	/**
+	 * @return location of the dependency graph as an svg image
+	 */
 	public String getSVG() {
 		return svg;
 	}
 	
+	/**
+	 * @return location of the dependency graph as a jpg image
+	 */
 	public String getJPG() {
 		return jpg;
 	}
 	
+	/**
+	 * @return int array with overall number of dependencies and number of direct dependencies
+	 */
 	public int[] getN() {
 		int[] n = new int[2];
 		System.arraycopy( number, 0, n, 0, 2 );
 		return n;
 	}
 	
+	/**
+	 * @return overall number of dependencies
+	 */
 	public int getNIndirect() {
 		return number[0];
 	}
 	
+	/**
+	 * @return number of direct dependencies
+	 */
 	public int getNDirect() {
 		return number[1];
 	}
@@ -76,7 +93,7 @@ public final class DependencyGraphAction implements Action {
 	}
 	
     /**
-     * This action doesn't provide any icon file.
+     * This action doesn't provide an icon file.
      * @return null
      */
     public String getIconFileName() {

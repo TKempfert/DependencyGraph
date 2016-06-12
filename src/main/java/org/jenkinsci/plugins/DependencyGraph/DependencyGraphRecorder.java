@@ -15,8 +15,21 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.EnvVars;
 import hudson.model.Result;
 
-
+/**
+ * Integrates the functionality that is performed as a post build step.
+ */
 public class DependencyGraphRecorder extends Recorder {
+	/**
+	 * Determines whether all depencencies or only direct dependencies
+	 * are shown.<br />
+	 * true: only direct dependencies
+	 * false: all dependencies<br />
+	 */
+	private boolean directOnly = false;
+	
+	public boolean getDirectOnly() {
+		return directOnly;
+	}
 
 	/**
 	 * Logger.
@@ -25,10 +38,11 @@ public class DependencyGraphRecorder extends Recorder {
 			.getLogger(DependencyGraphRecorder.class.getName());
 
 	/**
-	 * Constructs a {@link DependencyGraphRecorder}
+	 * Constructs a {@link DependencyGraphRecorder}.
 	 */
 	@DataBoundConstructor
-	public DependencyGraphRecorder() {
+	public DependencyGraphRecorder(boolean directOnly) {
+		this.directOnly = directOnly;
 		LOGGER.info("DependencyGraph is activated");
 	}
 
@@ -37,7 +51,7 @@ public class DependencyGraphRecorder extends Recorder {
 	 * each job and only when there is at least one successful build in the job.
 	 * @param project
 	 *            the project
-	 * @return copied DependencyGraphAction of the last successful build
+	 * @return copied {@link DependencyGraphAction} of the last successful build
 	 */
 	@Override
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
@@ -72,16 +86,6 @@ public class DependencyGraphRecorder extends Recorder {
 
 				String workspace = pathToString(build.getProject().getWorkspace());
 
-				// Get from configuration if indirect dependencies are to be displayed
-				boolean showIndirect = true;
-				Jenkins j = Jenkins.getInstance();
-				if (j!=null) {
-					DependencyGraphDescriptor desc = j.getDescriptorByType(DependencyGraphDescriptor.class);
-					if (desc != null) {
-						showIndirect = desc.showIndirect();
-					}
-				}
-
 				ReportFinder finder = new ReportFinder(workspace);
 				String path = finder.getBuildDir() + "/";
 
@@ -95,7 +99,7 @@ public class DependencyGraphRecorder extends Recorder {
 						path + image + ".jpg", 
 						IvyReportParser.xmlToDot(finder.getReportLocation(), 
 								path + image + ".dot", 
-								showIndirect)
+								directOnly)
 						)
 						);
 				ShellExecutor.dotToImages(path, image);
@@ -108,7 +112,7 @@ public class DependencyGraphRecorder extends Recorder {
 		return true;
 	}
 
-	/*
+	/**
 	 * Converts a FilePath to a String and cuts off the "file:" at the beginning.
 	 * @param workspace
 	 * 					the FilePath

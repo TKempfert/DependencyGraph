@@ -10,23 +10,18 @@ import hudson.tasks.Publisher;
  */
 @Extension
 public class DependencyGraphDescriptor extends BuildStepDescriptor<Publisher> {
-	private boolean indirect = true;
 	
     /**
-     * Constructs a {link DependencyGraphDescriptor}.
+     * Constructs a {@link DependencyGraphDescriptor}.
      */
     public DependencyGraphDescriptor() {
         super(DependencyGraphRecorder.class);
-    }
-    
-    public boolean showIndirect() {
-    	return indirect;
     }
 
     /**
      * Gets the descriptor display name, used in the post step checkbox
      * description.
-     * return the descriptor display name
+     * @return the descriptor display name
      */
     @Override
     public final String getDisplayName() {
@@ -34,10 +29,10 @@ public class DependencyGraphDescriptor extends BuildStepDescriptor<Publisher> {
     }
 
     /**
-     * Checks whether this descriptor is applicable.
-     * param clazz
+     * This descriptor is always applicable.
+     * @param clazz
      *            the class
-     * return true - of course the beard is applicable
+     * @return true
      */
     @Override
     public final boolean isApplicable(

@@ -20,7 +20,7 @@ import java.io.IOException;
 import hudson.tasks.Shell;
 
 /**
- * Helper class that executes the necessary shell scripts
+ * Helper class that executes the necessary shell scripts.
  */
 public class ShellExecutor {
 
