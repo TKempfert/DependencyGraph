@@ -79,15 +79,15 @@ public final class DependencyGraphAction implements Action {
 	/**
 	 * @return overall number of dependencies
 	 */
-	public int getNIndirect() {
-		return number[0];
+	public String getNIndirect() {
+		return Integer.toString(number[0]);
 	}
 	
 	/**
 	 * @return number of direct dependencies
 	 */
-	public int getNDirect() {
-		return number[1];
+	public String getNDirect() {
+		return Integer.toString(number[1]);
 	}
 	
 	/**

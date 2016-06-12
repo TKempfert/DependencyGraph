@@ -30,6 +30,14 @@ public final class JobGraphAction implements Action {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getBuildDir();
 	}
 	
+	public String getNIndirect() {
+		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getNIndirect();
+	}
+	
+	public String getNDirect() {
+		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getNDirect();
+	}
+	
 	/**
 	 * Gets the action display name.
 	 * @return the display name
