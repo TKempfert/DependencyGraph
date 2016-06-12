@@ -4,7 +4,7 @@ import hudson.model.Action;
 import hudson.model.AbstractProject;
 
 /**
- * Keeps the dependency graphs associated with the action.
+ * Action that gets the dependency graph from the last successful build.
  */
 public final class JobGraphAction implements Action {
 	private AbstractProject<?, ?> project;

@@ -1,13 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
-    <div class="chuck-style">
-	</div>
-    <style>
-        .chuck-style {
-          background-image: url(${rootURL}/job/<j:out value="${from.jobName}"/>/ws/<j:out value="${from.buildDir}"/>/<j:out value="${from.jpg}"/>);
-          background-repeat: no-repeat;
-          background-position: bottom left;
-          padding-bottom: 270px !important;
-        }
-    </style>
+	<object data="${rootUrl}/job/${from.jobName}/ws/${from.buildDir}/${from.svg}" type="image/svg+xml" width="100%" height="auto">
+		<img src="${rootUrl}/job/${from.jobName}/ws/${from.buildDir}/${from.jpg}" />
+	</object>
 </j:jelly>

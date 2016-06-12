@@ -118,7 +118,7 @@ public class Shape {
 	 */
 	public String toString() {
 		if (this.hasLoc()) {
-			return (shapeName + " [shape=box, label=\"" + org + "|" + name + "|" + rev +"\", URL=\"" + loc + "\"]");
+			return (shapeName + " [shape=box, label=\"" + org + "|" + name + "|" + rev +"\", URL=\"" + loc + "\" target=\"_graphviz\"]");
 		}
 		return (shapeName + " [shape=box, label=\"" + org + "|" + name + "|" + rev +"\"]");
 	}
