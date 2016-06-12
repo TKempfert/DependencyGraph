@@ -58,11 +58,14 @@ public class DependencyGraphRecorder extends Recorder {
 	 */
 	@Override
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
+		/*
 		DependencyGraphAction action = null;
 		if ((action = project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class)) != null) {
 			action = new DependencyGraphAction(action);
 		}
 		return action;
+		*/
+		return new JobGraphAction(project);
 	}
 
 	/**
