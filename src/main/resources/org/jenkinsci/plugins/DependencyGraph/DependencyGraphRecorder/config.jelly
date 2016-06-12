@@ -2,8 +2,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   
 		<div>
-		<f:entry title="${%Show only direct dependencies}">
-			<f:checkbox name="directOnly" checked="${h.defaultToFalse(instance.directOnly)}"/>
+		<f:entry>
+			<f:checkbox name="directOnly" checked="${h.defaultToFalse(instance.directOnly)}"/>  Show only direct dependencies
 		</f:entry>
 		</div>
   

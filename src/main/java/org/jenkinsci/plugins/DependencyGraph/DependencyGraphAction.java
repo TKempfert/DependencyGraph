@@ -9,6 +9,8 @@ public final class DependencyGraphAction implements Action {
 	private String svg;
 	private String jpg;
 	private int[] number;
+	private String buildDir;
+	private String jobName;
 	
 	/**
 	 * Constructs a {@link DependencyGraphAction}.
@@ -20,11 +22,13 @@ public final class DependencyGraphAction implements Action {
 	 * 				n[0]: overall number of dependencies,
 	 * 				n[1]: number of direct dependencies
 	 */
-	public DependencyGraphAction(String svg, String jpg, int[] n) {
+	public DependencyGraphAction(String svg, String jpg, int[] n, String bd, String jn) {
 		super();
 		this.svg = svg;
 		this.jpg = jpg;
 		number = new int[2];
+		buildDir = bd;
+		jobName = jn;
 		System.arraycopy( n, 0, number, 0, 2 );
 	}
 	
@@ -34,22 +38,32 @@ public final class DependencyGraphAction implements Action {
 	 * 				an existing DependencyGraphAction
 	 */
 	public DependencyGraphAction(DependencyGraphAction a) {
-		this.svg = a.getSVG();
-		this.jpg = a.getJPG();
+		this.svg = a.getSvg();
+		this.jpg = a.getJpg();
 		this.number = a.getN();
+		this.buildDir = a.getBuildDir();
+		this.jobName = a.getJobName();
+	}
+	
+	public String getJobName() {
+		return jobName;
+	}
+	
+	public String getBuildDir() {
+		return buildDir;
 	}
 
 	/**
 	 * @return location of the dependency graph as an svg image
 	 */
-	public String getSVG() {
+	public String getSvg() {
 		return svg;
 	}
 	
 	/**
 	 * @return location of the dependency graph as a jpg image
 	 */
-	public String getJPG() {
+	public String getJpg() {
 		return jpg;
 	}
 	

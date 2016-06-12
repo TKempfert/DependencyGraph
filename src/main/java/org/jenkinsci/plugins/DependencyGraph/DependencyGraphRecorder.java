@@ -22,20 +22,15 @@ public class DependencyGraphRecorder extends Recorder {
 	/**
 	 * Determines whether all depencencies or only direct dependencies
 	 * are shown.<br />
-	 * true: only direct dependencies
-	 * false: all dependencies<br />
+	 * true: only direct dependencies<br />
+	 * false: all dependencies
 	 */
 	private boolean directOnly = false;
-	
-	public boolean getDirectOnly() {
-		return directOnly;
-	}
 
 	/**
 	 * Logger.
 	 */
-	private static final Logger LOGGER = Logger
-			.getLogger(DependencyGraphRecorder.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(DependencyGraphRecorder.class.getName());
 
 	/**
 	 * Constructs a {@link DependencyGraphRecorder}.
@@ -44,6 +39,14 @@ public class DependencyGraphRecorder extends Recorder {
 	public DependencyGraphRecorder(boolean directOnly) {
 		this.directOnly = directOnly;
 		LOGGER.info("DependencyGraph is activated");
+	}
+	
+	/**
+	 * @return boolean that indicates whether all dependencies are shown (false)
+	 * or only direct dependencies (true)
+	 */
+	public boolean getDirectOnly() {
+		return directOnly;
 	}
 
 	/**
@@ -87,7 +90,7 @@ public class DependencyGraphRecorder extends Recorder {
 				String workspace = pathToString(build.getProject().getWorkspace());
 
 				ReportFinder finder = new ReportFinder(workspace);
-				String path = finder.getBuildDir() + "/";
+				String path = workspace + "/" + finder.getBuildDir() + "/";
 
 				// Extract current build number from environment variable
 				String image = "report_" + build.getEnvironment(listener).get("BUILD_NUMBER");
@@ -95,11 +98,13 @@ public class DependencyGraphRecorder extends Recorder {
 				// Convert dependency information from report to image files (svg, jpg)
 				// and get number of direct/indirect dependencies
 				build.getActions().add(new DependencyGraphAction(
-						path + image + ".svg", 
-						path + image + ".jpg", 
+						image + ".svg", 
+						image + ".jpg", 
 						IvyReportParser.xmlToDot(finder.getReportLocation(), 
 								path + image + ".dot", 
-								directOnly)
+								!directOnly),
+						finder.getBuildDir(),
+						build.getEnvironment(listener).get("JOB_NAME")
 						)
 						);
 				ShellExecutor.dotToImages(path, image);
@@ -129,8 +134,6 @@ public class DependencyGraphRecorder extends Recorder {
 		}
 		return path;
 	}
-
-
 
 	/**
 	 * Gets the required monitor service.

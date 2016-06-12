@@ -17,7 +17,8 @@ import java.nio.charset.Charset;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import org.xml.sax.SAXException;
-import java.nio.charset.Charset;
+
+//TODO alle infos auf einmal rausziehen
 
 /**
  * Finds the xml ivy report. Currently assumes that the name of the report file
@@ -45,22 +46,31 @@ public class ReportFinder {
 			try {
 			projectName = findProjectName(workspace + "/build.xml");
 			buildDir = findBuildDir(workspace, "/build.xml");
-			reportLocation = findReportLocation(buildDir, projectName);
+			reportLocation = findReportLocation(workspace + "/" + buildDir, projectName);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			}
 		}
 		
+		/**
+		 * @return String representation of the build directory
+		 */
 		public String getBuildDir() {
 			if (buildDir == null) find();
 			return buildDir;
 		}
 		
+		/**
+		 * @return String representation of the report location
+		 */
 		public String getReportLocation() {
 			if (reportLocation == null) find();
 			return reportLocation;
 		}
 		
+		/**
+		 * @return project name as a String
+		 */
 		public String getProjectName() {
 			if (projectName == null) find();
 			return projectName;
@@ -144,7 +154,7 @@ public class ReportFinder {
 			} catch (SAXException se) {
 				se.printStackTrace();
 			}
-			return workspace + "/" + buildDir;
+			return buildDir;
 		}
 	
 	// input: path + filename of build.xml
