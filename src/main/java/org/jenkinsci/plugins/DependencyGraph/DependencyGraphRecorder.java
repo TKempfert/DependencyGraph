@@ -14,6 +14,7 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.EnvVars;
 import hudson.model.Result;
+import java.io.File;
 
 /**
  * Integrates the functionality that is performed as a post build step.
@@ -21,8 +22,8 @@ import hudson.model.Result;
 public class DependencyGraphRecorder extends Recorder {
 	/**
 	 * Determines whether all depencencies or only direct dependencies
-	 * are shown.<br />
-	 * true: only direct dependencies<br />
+	 * are shown.<br>
+	 * true: only direct dependencies<br>
 	 * false: all dependencies
 	 */
 	private boolean directOnly = false;
@@ -40,7 +41,7 @@ public class DependencyGraphRecorder extends Recorder {
 		this.directOnly = directOnly;
 		LOGGER.info("DependencyGraph is activated");
 	}
-	
+
 	/**
 	 * @return boolean that indicates whether all dependencies are shown (false)
 	 * or only direct dependencies (true)
@@ -51,21 +52,18 @@ public class DependencyGraphRecorder extends Recorder {
 
 	/**
 	 * Gets the {@link DependencyGraphAction} as the project action. This is applicable for
-	 * each job and only when there is at least one successful build in the job.
+	 * each job and only when there is at least one successful build  in the job since the 
+	 * plugin was activated.
 	 * @param project
 	 *            the project
 	 * @return copied {@link DependencyGraphAction} of the last successful build
 	 */
 	@Override
 	public final Action getProjectAction(final AbstractProject<?, ?> project) {
-		/*
-		DependencyGraphAction action = null;
-		if ((action = project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class)) != null) {
-			action = new DependencyGraphAction(action);
+		if (project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class) != null) {
+			return new JobGraphAction(project);
 		}
-		return action;
-		*/
-		return new JobGraphAction(project);
+		return null;
 	}
 
 	/**
@@ -77,13 +75,10 @@ public class DependencyGraphRecorder extends Recorder {
 	 * @param listener
 	 *            the listener
 	 * @return true
-	 * @throws InterruptedException
-	 * @throws IOException
 	 */
 	@Override
 	public final boolean perform(final AbstractBuild<?, ?> build,
-			final Launcher launcher, final BuildListener listener)
-					throws InterruptedException, IOException {
+			final Launcher launcher, final BuildListener listener) {
 		try {
 			// Test for build success: must be at least unstable (no fatal errors)
 			// guarantees that dependencies could be resolved correctly
@@ -100,23 +95,29 @@ public class DependencyGraphRecorder extends Recorder {
 
 				// Convert dependency information from report to image files (svg, jpg)
 				// and get number of direct/indirect dependencies
-				build.getActions().add(new DependencyGraphAction(
-						image + ".svg", 
-						image + ".jpg", 
-						IvyReportParser.xmlToDot(finder.getReportLocation(), 
-								path + image + ".dot", 
-								!directOnly),
-						finder.getBuildDir(),
-						build.getEnvironment(listener).get("JOB_NAME")
-						)
-						);
-				ShellExecutor.dotToImages(path, image);
+				int[] n = IvyReportParser.xmlToDot(finder.getReportLocation(), 
+						path + image + ".dot", 
+						!directOnly);
+				if (n != null) {
+					ShellExecutor.dotToImages(path, image);
+					//if ((new File(path + image + ".svg")).exists()) {
+						build.getActions().add(new DependencyGraphAction(
+								image + ".svg", 
+								image + ".jpg", 
+								n,
+								workspace,
+								finder.getBuildDir(),
+								build.getEnvironment(listener).get("JOB_NAME")
+								)
+								);
+					//}
+				}
 			}
 		} catch(Exception e) {
 			// Catch all exceptions in order to not distort the build result
 			e.printStackTrace();
 		}
-		
+
 		return true;
 	}
 
@@ -126,7 +127,7 @@ public class DependencyGraphRecorder extends Recorder {
 	 * 					the FilePath
 	 * @return String representation of the FilePath
 	 */
-	public static String pathToString(FilePath workspace){
+	private static String pathToString(FilePath workspace){
 		String path = null;
 		try {
 			path = workspace.toURI().toString().replace("file:", "");

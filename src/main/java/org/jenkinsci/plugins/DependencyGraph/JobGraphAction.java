@@ -9,31 +9,64 @@ import hudson.model.AbstractProject;
 public final class JobGraphAction implements Action {
 	private AbstractProject<?, ?> project;
 	
+	/**
+	 * Constructs a {@link JobGraphAction}
+	 * @param project
+	 * 				the project
+	 */
 	public JobGraphAction(AbstractProject<?, ?> project) {
 		super();
 		this.project = project;
 	}
 	
+	public boolean getOk() {
+		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getOk();
+	}
+	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return the file name of the dependency graph as an jpg image
+	 */
 	public String getJpg() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getJpg();
 	}
 	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return the file name of the dependency graph as an svg image
+	 */
 	public String getSvg() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getSvg();
 	}
 	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return the name of the Jenkins Job
+	 */
 	public String getJobName() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getJobName();
 	}
 	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return the build directory relative to the workspace as a String
+	 */
 	public String getBuildDir() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getBuildDir();
 	}
 	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return overall number of dependencies
+	 */
 	public String getNIndirect() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getNIndirect();
 	}
 	
+	/**
+	 * Extracts information from the last successfull build.
+	 * @return number of direct dependencies
+	 */
 	public String getNDirect() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getNDirect();
 	}

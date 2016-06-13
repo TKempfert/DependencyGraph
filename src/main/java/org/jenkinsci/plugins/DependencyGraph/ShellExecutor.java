@@ -30,20 +30,15 @@ public class ShellExecutor {
 	 * 				path to the directory where the .dot file is stored
 	 * @param file
 	 * 				(input and output) file name without ending
+	 * @throws IOException
 	 */
-	public static void dotToImages(String path, String file){
+	public static void dotToImages(String path, String file) throws IOException{
 		String svgScript = "dot -Tsvg " + path + file + ".dot -o " 
 				+ path + file + ".svg ";
 		String jpgScript = "dot -Tjpg " + path + file + ".dot -o " 
 				+ path + file + ".jpg ";
-		System.out.println(svgScript);
-		try {
-			Runtime.getRuntime().exec(svgScript);
-			Runtime.getRuntime().exec(jpgScript);
-		} catch (IOException e) {
-			System.err.println("crap");
-		}
-		System.out.println("executed dot in shell");
+		Runtime.getRuntime().exec(svgScript);
+		Runtime.getRuntime().exec(jpgScript);
 	}
 
 }

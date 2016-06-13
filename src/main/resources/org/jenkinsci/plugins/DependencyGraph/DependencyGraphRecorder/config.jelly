@@ -3,7 +3,7 @@
   
 		<div>
 		<f:entry>
-			<f:checkbox name="directOnly" checked="${h.defaultToFalse(instance.directOnly)}"/>  Show only direct dependencies
+			<f:checkbox name="directOnly" checked="${instance.directOnly}"/>  Show only direct dependencies
 		</f:entry>
 		</div>
   

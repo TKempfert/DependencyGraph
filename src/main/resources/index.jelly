@@ -3,5 +3,7 @@
   This view is used to render the installed plugins page.
 -->
 <div>
-  This plugin is a sample to explain how to write a Jenkins plugin.
+This plugin builds a dependency graph from the information in the ivy report and displays 
+it on the build summary pages of successful builds. On the job overview page the dependency
+graph of the last successful build is shown.
 </div>

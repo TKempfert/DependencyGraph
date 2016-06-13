@@ -13,42 +13,42 @@ public class Shape {
 	
 	/**
 	 * Constructs a {@link Shape}.
-	 * @param sn
+	 * @param shapeName
 	 * 				shape name (for identification)
-	 * @param o	
+	 * @param org	
 	 * 				organisation
-	 * @param n	
+	 * @param name	
 	 * 				name
-	 * @param r	
+	 * @param rev	
 	 * 				revision
 	 */
-	public Shape(String sn, String o, String n, String r) {
-		shapeName=sn;
-		org=o;
-		name=n;
-		rev=r;
-		loc=null;
+	public Shape(String shapeName, String org, String name, String rev) {
+		this.shapeName=shapeName;
+		this.org=org;
+		this.name=name;
+		this.rev=rev;
+		this.loc=null;
 	}
 	
 	/**
 	 * Constructs a {@link Shape}.
-	 * @param sn
+	 * @param shapeName
 	 * 				shape name (for identification)
-	 * @param o	
+	 * @param org	
 	 * 				organisation
-	 * @param n	
+	 * @param name	
 	 * 				name
-	 * @param r	
+	 * @param rev	
 	 * 				revision
-	 * @param l	
+	 * @param loc	
 	 * 				location (uri)
 	 */
-	public Shape(String sn, String o, String n, String r, String l) {
-		shapeName=sn;
-		org=o;
-		name=n;
-		rev=r;
-		loc=l;
+	public Shape(String shapeName, String org, String name, String rev, String loc) {
+		this.shapeName=shapeName;
+		this.org=org;
+		this.name=name;
+		this.rev=rev;
+		this.loc=loc;
 	}
 	
 	/**
