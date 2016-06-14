@@ -100,17 +100,15 @@ public class DependencyGraphRecorder extends Recorder {
 						!directOnly);
 				if (n != null) {
 					ShellExecutor.dotToImages(path, image);
-					//if ((new File(path + image + ".svg")).exists()) {
-						build.getActions().add(new DependencyGraphAction(
-								image + ".svg", 
-								image + ".jpg", 
-								n,
-								workspace,
-								finder.getBuildDir(),
-								build.getEnvironment(listener).get("JOB_NAME")
-								)
-								);
-					//}
+					build.getActions().add(new DependencyGraphAction(
+							image + ".svg", 
+							image + ".jpg", 
+							n,
+							workspace,
+							finder.getBuildDir(),
+							build.getEnvironment(listener).get("JOB_NAME")
+							)
+							);
 				}
 			}
 		} catch(Exception e) {
