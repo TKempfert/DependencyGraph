@@ -44,7 +44,7 @@ public class ReportFinder {
 		
 		public void find() {
 			try {
-			projectName = findProjectName(workspace + "/build.xml");
+			projectName = findModuleName(workspace + "/ivy.xml");
 			buildDir = findBuildDir(workspace, "/build.xml");
 			reportLocation = findReportLocation(workspace + "/" + buildDir, projectName);
 			} catch (IllegalArgumentException e) {
@@ -71,7 +71,7 @@ public class ReportFinder {
 		/**
 		 * @return project name as a String
 		 */
-		public String getProjectName() {
+		public String getModuleName() {
 			if (projectName == null) find();
 			return projectName;
 		}
@@ -159,21 +159,21 @@ public class ReportFinder {
 	
 	// input: path + filename of build.xml
 	// output: name of the output path for the ivy report
-	private static String findProjectName(String buildXML) {
+	private static String findModuleName(String ivyXML) {
 		String pname = "";
 
 		try {			
-			File inputFile = new File(buildXML);
+			File inputFile = new File(ivyXML);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(inputFile);
 			doc.getDocumentElement().normalize();
 
-			NodeList nList = doc.getElementsByTagName("project");
+			NodeList nList = doc.getElementsByTagName("info");
 			assert(nList.getLength() == 1);
 
 			Element project = (Element) nList.item(0);
-			pname = project.getAttribute("name");
+			pname = project.getAttribute("organisation") + "-" + project.getAttribute("module");
 
 		} catch (IOException e) {
 			e.printStackTrace();
