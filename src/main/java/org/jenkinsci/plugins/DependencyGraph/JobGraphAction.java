@@ -19,20 +19,23 @@ public final class JobGraphAction implements Action {
 		this.project = project;
 	}
 	
+	/**
+	 * Checks if it is ok to display the graph (refers to corresponding function of the build action)
+	 */
 	public boolean getOk() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getOk();
 	}
 	
 	/**
-	 * Extracts information from the last successfull build.
-	 * @return the file name of the dependency graph as an jpg image
+	 * Extracts information from the last successful build.
+	 * @return the file name of the dependency graph as a jpg image
 	 */
 	public String getJpg() {
 		return project.getLastSuccessfulBuild().getAction(DependencyGraphAction.class).getJpg();
 	}
 	
 	/**
-	 * Extracts information from the last successfull build.
+	 * Extracts information from the last successful build.
 	 * @return the file name of the dependency graph as an svg image
 	 */
 	public String getSvg() {
@@ -40,7 +43,7 @@ public final class JobGraphAction implements Action {
 	}
 	
 	/**
-	 * Extracts information from the last successfull build.
+	 * Extracts information from the last successful build.
 	 * @return the name of the Jenkins Job
 	 */
 	public String getJobName() {
@@ -56,7 +59,7 @@ public final class JobGraphAction implements Action {
 	}
 	
 	/**
-	 * Extracts information from the last successfull build.
+	 * Extracts information from the last successful build.
 	 * @return overall number of dependencies
 	 */
 	public String getNIndirect() {
@@ -64,7 +67,7 @@ public final class JobGraphAction implements Action {
 	}
 	
 	/**
-	 * Extracts information from the last successfull build.
+	 * Extracts information from the last successful build.
 	 * @return number of direct dependencies
 	 */
 	public String getNDirect() {

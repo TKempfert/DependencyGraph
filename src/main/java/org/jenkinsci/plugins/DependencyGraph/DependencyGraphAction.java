@@ -34,6 +34,9 @@ public final class DependencyGraphAction implements Action {
 	 */
 	private String jobName;
 	
+	/**
+	 * The path to the workspace.
+	 */
 	private String workspace;
 	
 	/**
@@ -58,6 +61,10 @@ public final class DependencyGraphAction implements Action {
 		System.arraycopy( n, 0, number, 0, 2 );
 	}
 	
+	/**
+	 * Checks if it is ok to display the graph (image file exists).
+	 * @return boolean indicating whether image file exists
+	 */
 	public boolean getOk() {
 		if ((new File(workspace + "/" + buildDir + "/" + svg)).exists()) return true;
 		return false;

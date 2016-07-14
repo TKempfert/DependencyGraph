@@ -112,8 +112,8 @@ public class DependencyGraphRecorder extends Recorder {
 				}
 			}
 		} catch(Exception e) {
-			// Catch all exceptions in order to not distort the build result
-			e.printStackTrace();
+			// Catch all exceptions in order to not distort the build result.
+			// It's not like this plugin does anything critical, after all.
 		}
 
 		return true;

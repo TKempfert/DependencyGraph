@@ -17,17 +17,32 @@ import java.nio.charset.Charset;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import org.xml.sax.SAXException;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
-//TODO alle infos auf einmal rausziehen
 
 /**
- * Finds the xml ivy report. Currently assumes that the name of the report file
- * contains the project name and ends in .xml.
+ * Finds the xml ivy report and saves location information. 
  */
 public class ReportFinder {
+		/**
+		 * file name of xml ivy report
+		 */
 		private String reportLocation;
+		
+		/**
+		 * build directory (relative to workspace)
+		 */
 		private String buildDir;
+		
+		/**
+		 * name of the ivy project (organisation-module)
+		 */
 		private String projectName;
+		
+		/**
+		 * path to the workspace
+		 */
 		private String workspace;
 		
 		/**
@@ -42,6 +57,9 @@ public class ReportFinder {
 			this.workspace = workspace;
 		}
 		
+		/**
+		 * Searches for the ivy report and saves the path information
+		 */
 		public void find() {
 			try {
 			projectName = findModuleName(workspace + "/ivy.xml");
@@ -53,7 +71,7 @@ public class ReportFinder {
 		}
 		
 		/**
-		 * @return String representation of the build directory
+		 * @return String representation of the build directory (relative to workspace)
 		 */
 		public String getBuildDir() {
 			if (buildDir == null) find();
@@ -61,7 +79,7 @@ public class ReportFinder {
 		}
 		
 		/**
-		 * @return String representation of the report location
+		 * @return String: file name of the ivy report
 		 */
 		public String getReportLocation() {
 			if (reportLocation == null) find();
@@ -77,19 +95,18 @@ public class ReportFinder {
 		}
 	
 		/**
-		 * Finds the location of the xml ivy report. Assumes that the file name contains
-		 * the project name and ends in .xml. TODO figure out how to get the exact name
+		 * Finds the location of the xml ivy report.
 		 * @param path
 		 * 				directory where the report can be found
 		 * @param projectName
 		 * 				the name of the project
-		 * @returns location of the report as a String
+		 * @return location of the report as a String
 		 */
 		private static String findReportLocation(String path, String projectName) {
 			String file = "";
 			
 			File root = new File(path);
-			String regex = ".*" + Pattern.quote(projectName) + ".*\\.xml";
+			String regex = Pattern.quote(projectName) + ".*\\.xml";
 			
 			File[] matching;
 			if(!root.isDirectory()) {
@@ -109,8 +126,14 @@ public class ReportFinder {
 			return file;
 		}
 	
-		// input: complete path including filename of build.xml
-		// output: name of the directory where the ivy report is placed
+		/**
+		 * Finds the build directory.
+		 * @param workspace
+		 * 					path to workspace as a String
+		 * @param buildXML
+		 * 					path to build.xml as a String (relative to workspace)
+		 * @return the build directory (relative to workspace)
+		 */
 		private static String findBuildDir(String workspace, String buildXML) {
 			String buildDir = "";
 			String name;
@@ -140,10 +163,19 @@ public class ReportFinder {
 						assert(nList.getLength()==1);
 						Element report = (Element) reports.item(0);
 						buildDir = report.getAttribute("todir");
-
-						// buildDir can look like ${name.dir} or like name
-						// remove surrounding ${ .dir}
-						buildDir = buildDir.replace("${", "").replace(".dir}", "");
+						
+						// check if buildDir is a variable
+						if ((Pattern.compile("\\$\\{.*\\}")).matcher(buildDir).find()) {							
+							buildDir = buildDir.replace("${", "").replace("}", "");
+							// find corresponding value
+							NodeList properties = project.getElementsByTagName("property");
+							for (int n = 0; n < properties.getLength(); n++) {
+								Element property = (Element)properties.item(n);
+								if (buildDir.equals(property.getAttribute("name"))) {
+									buildDir = property.getAttribute("value");
+								}
+							}
+						}
 					}
 				}
 
@@ -157,8 +189,14 @@ public class ReportFinder {
 			return buildDir;
 		}
 	
-	// input: path + filename of build.xml
-	// output: name of the output path for the ivy report
+
+	/**
+	 * Reads organisation and module name from ivy.xml and concatenates them as 
+	 * org-module. This forms part of the name of the ivy report file.
+	 * @param ivyXML
+	 * 				complete path to the ivy.xml as a String
+	 * @return ivy project name as a String
+	 */
 	private static String findModuleName(String ivyXML) {
 		String pname = "";
 

@@ -29,7 +29,7 @@ public class ShellExecutor {
 	 * @param path
 	 * 				path to the directory where the .dot file is stored
 	 * @param file
-	 * 				(input and output) file name without ending
+	 * 				(input and output) file name without extension
 	 * @throws IOException
 	 */
 	public static void dotToImages(String path, String file) throws IOException{

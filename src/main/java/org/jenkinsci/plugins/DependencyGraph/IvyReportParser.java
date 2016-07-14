@@ -28,7 +28,7 @@ public class IvyReportParser {
 	 * @param output
 	 * 				output file
 	 * @param indirect
-	 * 				true: all dependencies are resolved
+	 * 				true: all dependencies are resolved <br>
 	 * 				false: only direct dependencies are resolved
 	 * @return int array with overall number of dependencies and number of
 	 * 				direct dependencies
@@ -49,8 +49,11 @@ public class IvyReportParser {
 		boolean isDirect = true;
 		boolean containsDirect = false;
 
-		int nIndirect = 0; // Overall number of dependencies (different revisions are counted separately)
-		int nDirect = 0; // Number of direct dependencies (different revisions are counted separately)
+		//Overall number of dependencies (different revisions are counted separately)
+		int nIndirect = 0;
+		
+		//Number of direct dependencies (different revisions are counted separately)
+		int nDirect = 0;
 
 		try {			
 			ArrayList<Shape> shapeL = new ArrayList<Shape>();
